@@ -199,9 +199,9 @@ st.markdown('<p style="text-align: center; font-size: 1.2rem; color: #666; margi
 map_data = latest_data.copy()
 map_data = map_data.dropna(subset=[selected_metric, 'Latitude', 'Longitude'])
 
-# Ensure bubble sizes are visible
-map_data['Bubble_Size'] = map_data['Primary energy consumption per capita (kWh/person)'].fillna(0)
-map_data['Bubble_Size'] = np.where(map_data['Bubble_Size'] < 100, 100, map_data['Bubble_Size'])  # Minimum size
+# Ensure bubble sizes are visible and reasonable
+map_data['Bubble_Size'] = map_data['Primary energy consumption per capita (kWh/person)'].fillna(1000)
+map_data['Bubble_Size'] = np.where(map_data['Bubble_Size'] < 500, 500, map_data['Bubble_Size'])
 
 # Create stunning world map with enhanced tooltips
 fig_map = px.scatter_geo(
@@ -212,86 +212,47 @@ fig_map = px.scatter_geo(
     size='Bubble_Size',
     hover_name='Entity',
     hover_data={
-        'Access to electricity (% of population)': ':.1f%',
-        'Renewable energy share in the total final energy consumption (%)': ':.1f%',
-        'Value_co2_emissions_kt_by_country': ':,.0f kt',
-        'gdp_per_capita': ':$,.0f',
-        'Primary energy consumption per capita (kWh/person)': ':,.0f kWh',
+        'Access to electricity (% of population)': ':.1f',
+        'Renewable energy share in the total final energy consumption (%)': ':.1f',
+        'Value_co2_emissions_kt_by_country': ':.0f',
+        'gdp_per_capita': ':.0f',
+        'Primary energy consumption per capita (kWh/person)': ':.0f',
         'Latitude': False,
         'Longitude': False,
         'Bubble_Size': False
     },
-    title=f"<b>Global {metric_labels.get(selected_metric, selected_metric)} Distribution ({latest_year.year})</b>",
-    color_continuous_scale="Plasma",
+    title=f"<b>Global {metric_labels.get(selected_metric, selected_metric)} - {latest_year.year}</b>",
+    color_continuous_scale="Viridis",
     projection="natural earth",
-    size_max=80,
-    labels={
-        selected_metric: metric_labels.get(selected_metric, selected_metric)
-    }
+    size_max=60
 )
 
-# Enhanced map styling
+# Simplified map styling to avoid errors
 fig_map.update_traces(
     marker=dict(
         opacity=0.8,
         line=dict(width=1, color='white'),
-        sizemin=8
-    ),
-    hovertemplate=
-    "<b>%{hovertext}</b><br>" +
-    f"{metric_labels.get(selected_metric, selected_metric)}: %{{marker.color:.1f}}<br>" +
-    "🏠 Electricity Access: %{customdata[0]:.1f}%<br>" +
-    "🌱 Renewable Share: %{customdata[1]:.1f}%<br>" +
-    "💨 CO₂ Emissions: %{customdata[2]:,.0f} kt<br>" +
-    "💰 GDP per Capita: $%{customdata[3]:,.0f}<br>" +
-    "🔋 Energy Consumption: %{customdata[4]:,.0f} kWh/person<br>" +
-    "<extra></extra>"
-)
-
-fig_map.update_layout(
-    height=1000,  # MASSIVE height
-    title_font_size=28,
-    title_x=0.5,
-    title_pad=dict(t=20),
-    geo=dict(
-        showframe=False, 
-        showcoastlines=True,
-        coastlinecolor="rgb(204, 204, 204)",
-        coastlinewidth=2,
-        bgcolor='rgba(240,248,255,0.8)',
-        landcolor='rgb(243, 243, 243)',
-        oceancolor='rgb(230, 245, 255)',
-        projection_scale=1,
-        showlakes=True,
-        lakecolor='rgb(230, 245, 255)',
-        showrivers=True,
-        rivercolor='rgb(230, 245, 255)'
-    ),
-    font=dict(size=16),
-    margin=dict(l=0, r=0, t=60, b=0),
-    coloraxis_colorbar=dict(
-        title=metric_labels.get(selected_metric, selected_metric),
-        titlefont=dict(size=16),
-        tickfont=dict(size=14),
-        len=0.7,
-        thickness=20,
-        x=1.02
+        sizemin=5
     )
 )
 
-# Display the massive map
-st.plotly_chart(fig_map, use_container_width=True, key="world_map", config={
-    'displayModeBar': True,
-    'displaylogo': False,
-    'modeBarButtonsToRemove': ['pan2d','lasso2d', 'select2d'],
-    'toImageButtonOptions': {
-        'format': 'png',
-        'filename': f'global_energy_map_{latest_year.year}',
-        'height': 1000,
-        'width': 1600,
-        'scale': 1
-    }
-})
+fig_map.update_layout(
+    height=800,  # Large but stable height
+    title_font_size=24,
+    title_x=0.5,
+    geo=dict(
+        showframe=False, 
+        showcoastlines=True,
+        landcolor='lightgray',
+        oceancolor='lightblue',
+        projection_type='natural earth'
+    ),
+    font=dict(size=14),
+    margin=dict(l=20, r=20, t=80, b=20)
+)
+
+# Display the map with simplified config
+st.plotly_chart(fig_map, use_container_width=True, key="world_map")
 
 # Enhanced Time Series Analysis - MUCH LARGER
 st.markdown('<div class="section-header">📊 Time Series Analysis</div>', unsafe_allow_html=True)
