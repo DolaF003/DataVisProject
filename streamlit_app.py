@@ -42,7 +42,7 @@ st.markdown("""
 # Load and cache data
 @st.cache_data
 def load_data():
-    df = pd.read_csv('globaldataonsustainableenergy 1.csv')
+    df = pd.read_csv('global-data-on-sustainable-energy (1).csv')
     
     # Clean column names
     df.columns = df.columns.str.strip()
