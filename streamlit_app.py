@@ -19,7 +19,8 @@ st.markdown("""
 
 This dashboard reveals the stark disparities in carbon emissions between developed and developing countries, 
 highlighting how some nations contribute disproportionately to the climate crisis while others struggle 
-with basic energy access.
+with basic energy access. (Note: Due to missing emissions data for 2020 for all countires, there will be no charts to be shown for the year 
+2020 for the Global Carbon Emissions Overview)
 """)
 
 @st.cache_data
